@@ -1,0 +1,52 @@
+<mxfile host="app.diagrams.net" modified="2024-03-21T20:41:09.261Z" agent="Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/122.0.0.0 Safari/537.36" etag="YQw5ui4GU6B_tBTcto68" version="24.0.7" type="device">
+  <diagram name="Страница — 1" id="zPQ2srnLziXIBgrrPFh1">
+    <mxGraphModel dx="579" dy="626" grid="0" gridSize="10" guides="0" tooltips="1" connect="1" arrows="1" fold="1" page="1" pageScale="1" pageWidth="827" pageHeight="1169" math="0" shadow="0">
+      <root>
+        <mxCell id="0" />
+        <mxCell id="1" parent="0" />
+        <mxCell id="4bTMuCLJ6EFpoTAzXi2h-3" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;entryX=0.5;entryY=0;entryDx=0;entryDy=0;" edge="1" parent="1" source="4bTMuCLJ6EFpoTAzXi2h-1" target="4bTMuCLJ6EFpoTAzXi2h-2">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="4bTMuCLJ6EFpoTAzXi2h-1" value="начало" style="rounded=1;whiteSpace=wrap;html=1;" vertex="1" parent="1">
+          <mxGeometry x="250" y="310" width="120" height="30" as="geometry" />
+        </mxCell>
+        <mxCell id="4bTMuCLJ6EFpoTAzXi2h-5" value="" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;" edge="1" parent="1" source="4bTMuCLJ6EFpoTAzXi2h-2" target="4bTMuCLJ6EFpoTAzXi2h-4">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="4bTMuCLJ6EFpoTAzXi2h-2" value="открытие приложения" style="rounded=0;whiteSpace=wrap;html=1;" vertex="1" parent="1">
+          <mxGeometry x="250" y="370" width="120" height="60" as="geometry" />
+        </mxCell>
+        <mxCell id="4bTMuCLJ6EFpoTAzXi2h-7" value="" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;" edge="1" parent="1" source="4bTMuCLJ6EFpoTAzXi2h-4" target="4bTMuCLJ6EFpoTAzXi2h-6">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="4bTMuCLJ6EFpoTAzXi2h-4" value="пользовательский интерфейс(WPF)" style="whiteSpace=wrap;html=1;rounded=0;" vertex="1" parent="1">
+          <mxGeometry x="250" y="460" width="120" height="60" as="geometry" />
+        </mxCell>
+        <mxCell id="4bTMuCLJ6EFpoTAzXi2h-11" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;exitX=0.5;exitY=1;exitDx=0;exitDy=0;" edge="1" parent="1">
+          <mxGeometry relative="1" as="geometry">
+            <mxPoint x="310" y="614.5" as="sourcePoint" />
+            <mxPoint x="310" y="653" as="targetPoint" />
+          </mxGeometry>
+        </mxCell>
+        <mxCell id="4bTMuCLJ6EFpoTAzXi2h-6" value="логика, функционал приложения" style="whiteSpace=wrap;html=1;rounded=0;" vertex="1" parent="1">
+          <mxGeometry x="250" y="554.5" width="120" height="60" as="geometry" />
+        </mxCell>
+        <mxCell id="4bTMuCLJ6EFpoTAzXi2h-14" value="" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;" edge="1" parent="1" source="4bTMuCLJ6EFpoTAzXi2h-10" target="4bTMuCLJ6EFpoTAzXi2h-13">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="4bTMuCLJ6EFpoTAzXi2h-10" value="модели и доступ к данным" style="rounded=0;whiteSpace=wrap;html=1;" vertex="1" parent="1">
+          <mxGeometry x="250" y="653" width="120" height="60" as="geometry" />
+        </mxCell>
+        <mxCell id="4bTMuCLJ6EFpoTAzXi2h-18" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;exitX=0.5;exitY=1;exitDx=0;exitDy=0;entryX=0.5;entryY=0;entryDx=0;entryDy=0;" edge="1" parent="1" source="4bTMuCLJ6EFpoTAzXi2h-13" target="4bTMuCLJ6EFpoTAzXi2h-17">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="4bTMuCLJ6EFpoTAzXi2h-13" value="база данных&lt;div&gt;PosgreSQL&lt;/div&gt;" style="whiteSpace=wrap;html=1;rounded=0;" vertex="1" parent="1">
+          <mxGeometry x="250" y="748" width="120" height="60" as="geometry" />
+        </mxCell>
+        <mxCell id="4bTMuCLJ6EFpoTAzXi2h-17" value="конец" style="rounded=1;whiteSpace=wrap;html=1;" vertex="1" parent="1">
+          <mxGeometry x="250" y="835" width="120" height="35" as="geometry" />
+        </mxCell>
+      </root>
+    </mxGraphModel>
+  </diagram>
+</mxfile>

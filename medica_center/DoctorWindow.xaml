@@ -1,0 +1,123 @@
+﻿<Window x:Class="medica_center.DoctorWindow"
+        xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+        xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+        xmlns:local="clr-namespace:medica_center"
+        mc:Ignorable="d"
+        Title="DoctorWindow" Height="800" Width="1500" WindowStartupLocation="CenterScreen">
+    <Grid>
+        <Grid.RowDefinitions>
+            <RowDefinition Height="Auto"/>
+            <RowDefinition Height="*"/>
+        </Grid.RowDefinitions>
+
+        <StackPanel Grid.Row="0" Background="LightBlue">
+            <StackPanel Orientation="Horizontal">
+                <TextBlock Text="Медицинский Центр" FontSize="24" FontWeight="Bold" Margin="7"/>
+                <Button Content="Выйти" Margin="1150 0 0 0" Height="30" Click="Button_Click"/>
+            </StackPanel>
+        </StackPanel>
+
+        <ScrollViewer Grid.Row="1">
+            <StackPanel Margin="10">
+                <GroupBox>
+                    <GroupBox.Header>
+                        <TextBlock Text="Врач" FontSize="16" ></TextBlock>
+                    </GroupBox.Header>
+
+                    <StackPanel Orientation="Horizontal">
+                        <StackPanel x:Name="doctorContainer" Width="300" HorizontalAlignment="Left">
+                        </StackPanel>
+
+                        <StackPanel>
+                            <TextBlock Text="Ведидете новое расписание(дни недели, часы): " Margin="20 10 0 0"/>
+                            <TextBox x:Name="newScheduleTextBox" Width="300" Height="20" Margin="20 10 10 0"/>
+                            <Button x:Name="ConfirmNewSchedule" Content="Подтвердить новое расписание" Click="ConfirmNewSchedule_Click" Height="20" Margin="20 10 10 0"/>
+                        </StackPanel>
+                    </StackPanel>
+                </GroupBox>
+
+                <StackPanel Orientation="Horizontal">
+                    <DataGrid x:Name="usersDataGrid" AutoGenerateColumns="True" Margin="20" Width="300" CanUserAddRows="False" HorizontalAlignment="Left" Height="204" SelectionChanged="usersDataGrid_SelectionChanged"/>
+                    <Button Content="Выгрузить информацию о пациенте в файл" Height="20" VerticalAlignment="Bottom" Margin="20" Click="Button_Click_1"/>
+                </StackPanel>
+
+                <GroupBox Header="Результаты обследования клиента и диагноз">
+                    <StackPanel Orientation="Horizontal">
+                        <StackPanel x:Name="resultsContainer" Width="300" HorizontalAlignment="Left" Margin="7">
+                        </StackPanel>
+
+                        <StackPanel Margin="20 10 0 10">
+                            <TextBlock Margin=" 10 7 10 0">Введите диагноз:</TextBlock>
+                            <TextBox x:Name="diagnosisTextBox" Width="200" Margin=" 10" />
+                            <Button Content="Подтвердить диагноз" Click="ConfirmDiagnosisButton_Click" Margin="10 5 10 5" />
+                        </StackPanel>
+
+                    </StackPanel>
+                </GroupBox>
+
+                <GroupBox Header="Назначение лекарств">
+                    <StackPanel Orientation="Horizontal">
+                        
+                        <StackPanel>
+                            <TextBlock Margin="10 10 10 0">Уже назначенные:</TextBlock>
+                            <DataGrid x:Name="medicationDataGrid" Grid.Column="0" AutoGenerateColumns="False" Margin="5" HorizontalAlignment="Left">
+                                <DataGrid.Columns>
+                                    <DataGridTextColumn Header="Название" Binding="{Binding Medication_Name_pres_diag}" />
+                                    <DataGridTextColumn Header="Дозировка" Binding="{Binding Dosage_pres_diag}" />
+                                    <DataGridTextColumn Header="Продолжительность" Binding="{Binding Duration_pres_diag}" />
+                                    <DataGridTextColumn Header="Цена" Binding="{Binding Medication_Price}" />
+                                </DataGrid.Columns>
+                            </DataGrid>
+                        </StackPanel>
+
+                        <StackPanel>
+                            <TextBlock Text="Дозировка: " Margin="200 80 0 5"/>
+                            <TextBox x:Name="MedDosageTextBox" Margin="200 5 10 5"></TextBox>
+                            <TextBlock Text="Продолжительность: " Margin="200 5 0 5"/>
+                            <TextBox x:Name="MedDurationTextBox" Margin="200 5 10 5"></TextBox>
+                            <Button x:Name="PrescribeNewMedicationsButton" Content="Назначить новый препарат" Height="20" Margin="200 5 10 30" Click="PrescribeNewMedicationsButton_Click"/>
+                        </StackPanel>
+                        <DataGrid x:Name="allMedicationDataGrid" AutoGenerateColumns="False" Margin="10 21 0 0" CanUserAddRows="False">
+                            <DataGrid.Columns>
+                                <DataGridTextColumn Header="ID" Binding="{Binding med_id}" />
+                                <DataGridTextColumn Header="Name" Binding="{Binding med_name}" Width="90"/>
+                                <DataGridTextColumn Header="Description" Binding="{Binding med_description}" Width="150" />
+                                <DataGridTextColumn Header="Price" Binding="{Binding med_price}" />
+                            </DataGrid.Columns>
+                        </DataGrid>
+                    </StackPanel>
+                </GroupBox>
+
+                <GroupBox Header="Назначение процедур">
+                    <StackPanel Orientation="Horizontal">
+                        <StackPanel>
+                            <TextBlock Margin="10 10 10 0">Уже назначенные:</TextBlock>
+                            <DataGrid x:Name="procedureDataGrid" Grid.Column="1" AutoGenerateColumns="False" Margin="5" HorizontalAlignment="Left">
+                                <DataGrid.Columns>
+                                    <DataGridTextColumn Header="Название" Binding="{Binding Procedure_Name_pres_proc}" />
+                                    <DataGridTextColumn Header="Продолжительность" Binding="{Binding Duration_pres_proc}" />
+                                </DataGrid.Columns>
+                            </DataGrid>
+                        </StackPanel>
+
+                        <StackPanel>
+                            <TextBlock Text="Продолжительность: " Margin="200 80 55 5" Width="119" HorizontalAlignment="Right"/>
+                            <TextBox x:Name="ProcDurationTextBox" Margin="200 5 10 5" Width="163" HorizontalAlignment="Right"></TextBox>
+                            <Button x:Name="PrescribeNewProceduresButton" Content="Назначить новую процедуру" Height="20" Margin="310 10 10 30" Click="PrescribeNewProceduresButton_Click"/>
+                        </StackPanel>
+                        <DataGrid x:Name="allProcedureDataGrid" AutoGenerateColumns="False" Margin="10 21 0 0" CanUserAddRows="False">
+                            <DataGrid.Columns>
+                                <DataGridTextColumn Header="ID" Binding="{Binding proc_id}" />
+                                <DataGridTextColumn Header="Name" Binding="{Binding proc_name}" />
+                                <DataGridTextColumn Header="Description" Binding="{Binding proc_description}" />
+                                <DataGridTextColumn Header="Price" Binding="{Binding proc_price}" />
+                            </DataGrid.Columns>
+                        </DataGrid>
+                    </StackPanel>
+                </GroupBox>
+            </StackPanel>
+        </ScrollViewer>
+    </Grid>
+</Window>

@@ -1,0 +1,214 @@
+﻿<Window x:Class="medica_center.ClientWindow"
+        xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+        xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+        xmlns:local="clr-namespace:medica_center"
+        mc:Ignorable="d"
+        Title="ClientWindow" Height="800" Width="1500" WindowStartupLocation="CenterScreen">
+    <Grid>
+        <Grid.RowDefinitions>
+            <RowDefinition Height="Auto"/>
+            <RowDefinition Height="*"/>
+        </Grid.RowDefinitions>
+
+        <!-- Header -->
+        <StackPanel Grid.Row="0" Background="LightBlue">
+            <StackPanel Orientation="Horizontal">
+                <TextBlock Text="Медицинский Центр" FontSize="24" FontWeight="Bold" Margin="7"/>
+                <Button Content="Выйти" Margin="1150 0 0 0" Height="30" Click="Button_Click"/>
+            </StackPanel>
+        </StackPanel>
+
+        <!-- Main Content -->
+        <ScrollViewer Grid.Row="1">
+            <StackPanel Margin="10">
+
+                <!-- Запись на приём -->
+                <StackPanel Orientation="Horizontal">
+                    <GroupBox HeaderStringFormat=""  Width="300" HorizontalAlignment="Left">
+                        <GroupBox.Header>
+                            <TextBlock Text="Запись на приём" FontSize="16" ></TextBlock>
+                        </GroupBox.Header>
+                        <Grid>
+
+                            <Grid.RowDefinitions>
+                                <RowDefinition Height="Auto"/>
+                                <RowDefinition Height="Auto"/>
+                                <RowDefinition Height="Auto"/>
+                                <RowDefinition Height="Auto"/>
+                                <RowDefinition Height="Auto"/>
+                                <RowDefinition Height="Auto"/>
+                                <RowDefinition Height="*"/>
+                            </Grid.RowDefinitions>
+
+                            <TextBlock Grid.Row="0" Text="Выберите дату:" Margin="0,5,0,0"/>
+                            <DatePicker Grid.Row="1" x:Name="datePicker" SelectedDate="{Binding SelectedDate, Mode=TwoWay}"/>
+
+                            <TextBlock Grid.Row="2" Text="Выберите время:"/>
+                            <ComboBox Grid.Row="3" x:Name="timeComboBox" SelectedItem="{Binding SelectedTime, Mode=TwoWay}">
+                                <ComboBoxItem Content="09:00"/>
+                                <ComboBoxItem Content="10:00"/>
+                                <ComboBoxItem Content="11:00"/>
+                                <ComboBoxItem Content="12:00"/>
+                                <ComboBoxItem Content="13:00"/>
+                                <ComboBoxItem Content="14:00"/>
+                                <ComboBoxItem Content="15:00"/>
+                                <ComboBoxItem Content="16:00"/>
+                                <ComboBoxItem Content="17:00"/>
+                            </ComboBox>
+
+                            <TextBlock Grid.Row="4" Text="Выберите врача:"/>
+                            <ComboBox Grid.Row="5" x:Name="doctorComboBox" ItemsSource="{Binding Doctors}" DisplayMemberPath="Name" SelectedValuePath="ID"/>
+
+                            <StackPanel Grid.Row="6" Orientation="Horizontal" HorizontalAlignment="Center">
+                                <Button Content="Записаться" Click="BookAppointment_Click" Margin="5"/>
+                            </StackPanel>
+                        </Grid>
+                    </GroupBox>
+
+                    <StackPanel>
+                        <DataGrid x:Name="appointmentsDataGrid" AutoGenerateColumns="False" Margin="10" Width="350" Height="120" ItemsSource="{Binding appointmentsDataGrid}" CanUserAddRows="False">
+                            <DataGrid.Columns>
+                                <DataGridTextColumn Header="id" Binding="{Binding appointment_id}"/>
+                                <DataGridTextColumn Header="id пользователя" Binding="{Binding user_id}"/>
+                                <DataGridTextColumn Header="id врача" Binding="{Binding doctor_id}"/>
+                                <DataGridTextColumn Header="дата записи" Binding="{Binding appointment_date_time}" Width="*"/>
+                            </DataGrid.Columns>
+                        </DataGrid>
+
+                        <StackPanel Orientation="Horizontal">
+                            <Button Content="Вывести мои записи" Click="ShowAppointments_Click" Margin="20,0,20,0"/>
+                            <Button Content="Отменить запись" Click="CancelAppointment_Click" Margin="20,0,20,0"/>
+                        </StackPanel>
+                    </StackPanel>
+                </StackPanel>
+
+                <StackPanel Orientation="Horizontal">
+                    <GroupBox Width="600">
+                        <GroupBox.Header>
+                            <TextBlock Text="Врачи" FontSize="16" ></TextBlock>
+                        </GroupBox.Header>
+                        <StackPanel x:Name="doctorsContainer" Width="300" HorizontalAlignment="Left">
+                            <!-- Здесь будут отображаться карточки врачей -->
+                        </StackPanel>
+                    </GroupBox>
+
+                    <!-- Услуги и процедуры -->
+                    <GroupBox Width="800">
+                        <GroupBox.Header>
+                            <TextBlock Text="Услуги и процедуры" FontSize="16" ></TextBlock>
+                        </GroupBox.Header>
+                        <StackPanel Orientation="Horizontal" Margin="0,0,0,0">
+
+                            <StackPanel x:Name="servicesContainer" Width="300" HorizontalAlignment="Left">
+                                <!-- Здесь будут отображаться услуги и процедуры -->
+                            </StackPanel>
+
+
+                            <!-- Панель фильтрации -->
+                            <StackPanel Margin="30 10 10 10">
+                                <TextBlock Text="Диапазон цен:" Margin="0,0,10,5" VerticalAlignment="Center" />
+                                <StackPanel Orientation="Horizontal">
+                                    <TextBlock Text="от" Margin="0,0,10,0" VerticalAlignment="Center" />
+                                    <TextBox Width="100" Margin="0,0,10,0" Name="MinPriceTextBox"/>
+                                    <TextBlock Text="до" Margin="0,0,10,0" VerticalAlignment="Center" />
+                                    <TextBox Width="100" Name="MaxPriceTextBox"/>
+                                </StackPanel>
+                                <TextBlock Text="Название:" Margin="0,10,10,5" VerticalAlignment="Center" />
+                                <TextBox Width="200" Margin="0,0,10,0" Name="NameTextBox"/>
+                                <TextBlock Text="Направление:" Margin="0,10,10,5" VerticalAlignment="Center" />
+                                <ComboBox FontSize="13" Width="200" x:Name="ProcedureOrientationComboBox">
+                                    <ComboBoxItem Content=""/>
+                                    <ComboBoxItem Content="Терапевтия"/>
+                                    <ComboBoxItem Content="Кардиология"/>
+                                    <ComboBoxItem Content="Эндокринология" />
+                                    <ComboBoxItem Content="Дерматология" />
+                                    <ComboBoxItem Content="Ортопедия" />
+                                    <ComboBoxItem Content="Хирургия" />
+                                </ComboBox>
+                                <Button x:Name="ConfirmFiltersButton" Content="Применить" Margin="60 10 60 0" Click="ConfirmFiltersButton_Click"/>
+                            </StackPanel>
+
+
+                        </StackPanel>
+                    </GroupBox>
+                </StackPanel>
+
+                <!-- Отзывы -->
+                <GroupBox>
+                    <GroupBox.Header>
+                        <TextBlock Text="Отзывы" FontSize="16" ></TextBlock>
+                    </GroupBox.Header>
+
+                    <StackPanel Orientation="Horizontal">
+                        <StackPanel x:Name="reviewContainer" Width="300" HorizontalAlignment="Left" Margin="6,5,30,5">
+                            <!-- Здесь будут отображаться отзывы -->
+                        </StackPanel>
+                        <StackPanel>
+                            <TextBlock Text="Оставьте свой отзыв" Margin="0,5,0,5"/>
+                            <TextBox x:Name="reviewTextBox" Width="293" Height="120" TextWrapping="Wrap" VerticalScrollBarVisibility="Auto" HorizontalAlignment="Left"/>
+                            <Button Content="Оставить отзыв" Click="LeaveReviewButton_Click" Margin="0,10,0,0" Width="150" HorizontalAlignment="Left"/>
+                        </StackPanel>
+                        <StackPanel>
+                            <Button Content="Выгрузить отзывы из файла" Margin=" 20 28 20  0" Click="Button_Click_1"/>
+                        </StackPanel>
+                    </StackPanel>
+                </GroupBox>
+
+                <!-- Акции -->
+                <GroupBox>
+                    <GroupBox.Header>
+                        <TextBlock Text="Акции" FontSize="16" ></TextBlock>
+                    </GroupBox.Header>
+                    <StackPanel>
+                        <StackPanel x:Name="promotionsContainer" HorizontalAlignment="Left">
+                            <!-- Здесь будут отображаться акции -->
+                        </StackPanel>
+                        <StackPanel>
+                            <Button Content="ещё" Click="Button_Click_2" Width="30" HorizontalAlignment="Left" Margin="100 15 0 10" />
+                        </StackPanel>
+                    </StackPanel>
+
+                </GroupBox>
+
+                <!-- Результаты обследований и диагнозы -->
+                <GroupBox>
+                    <GroupBox.Header>
+                        <TextBlock Text="Результаты обследований и диагнозы" FontSize="16" ></TextBlock>
+                    </GroupBox.Header>
+                    <StackPanel Orientation="Horizontal">
+                        <StackPanel x:Name="resultsContainer" Width="300" HorizontalAlignment="Left" Margin="5">
+                            <!-- Здесь будут отображаться акции -->
+                        </StackPanel>
+                        <Grid>
+                            <Grid.ColumnDefinitions>
+                                <ColumnDefinition/>
+                                <ColumnDefinition/>
+                            </Grid.ColumnDefinitions>
+
+                            <!-- DataGrid для выписанных медикаментов -->
+                            <DataGrid x:Name="medicationDataGrid" Grid.Column="0" AutoGenerateColumns="False" Margin="5" CanUserAddRows="False">
+                                <DataGrid.Columns>
+                                    <DataGridTextColumn Header="Название" Binding="{Binding Medication_Name_pres_diag}" />
+                                    <DataGridTextColumn Header="Дозировка" Binding="{Binding Dosage_pres_diag}" />
+                                    <DataGridTextColumn Header="Продолжительность" Binding="{Binding Duration_pres_diag}" />
+                                    <DataGridTextColumn Header="Цена" Binding="{Binding Medication_Price}" />
+                                </DataGrid.Columns>
+                            </DataGrid>
+
+                            <!-- DataGrid для выписанных процедур -->
+                            <DataGrid x:Name="procedureDataGrid" Grid.Column="1" AutoGenerateColumns="False" Margin="5" CanUserAddRows="False">
+                                <DataGrid.Columns>
+                                    <DataGridTextColumn Header="Название" Binding="{Binding Procedure_Name_pres_proc}" />
+                                    <DataGridTextColumn Header="Продолжительность" Binding="{Binding Duration_pres_proc}" />
+                                </DataGrid.Columns>
+                            </DataGrid>
+                        </Grid>
+                    </StackPanel>
+                </GroupBox>
+
+            </StackPanel>
+        </ScrollViewer>
+    </Grid>
+</Window>

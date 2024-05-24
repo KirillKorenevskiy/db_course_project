@@ -1,0 +1,205 @@
+-- Создание таблицы "Users"
+CREATE TABLE Users (
+  ID SERIAL PRIMARY KEY,
+  First_Name VARCHAR(50),
+  Last_Name VARCHAR(50),
+  Username VARCHAR(50),
+  Password VARCHAR(50),
+  Role VARCHAR(50)
+);
+
+ALTER TABLE Users
+ADD CONSTRAINT role_check CHECK (Role IN ('Administrator', 'Doctor', 'Client'));
+ALTER TABLE Users ALTER COLUMN Password TYPE VARCHAR(100);
+
+DELETE FROM Users
+
+-- Создание таблицы "Doctors"
+CREATE TABLE Doctors (
+  ID SERIAL PRIMARY KEY,
+  First_Name VARCHAR(50),
+  Last_Name VARCHAR(50),
+  Specialization VARCHAR(100),
+  Schedule VARCHAR(100)
+);
+
+DELETE FROM Doctors
+
+
+-- Создание таблицы "Services and Procedures"
+CREATE TABLE Services_and_Procedures (
+  ID SERIAL PRIMARY KEY,
+  Name VARCHAR(100),
+  Description TEXT,
+  Price DECIMAL(10, 2)
+);
+
+ALTER TABLE Services_and_Procedures
+ADD isDeleted BOOLEAN;
+
+ALTER TABLE Services_and_Procedures
+ADD Orientation VARCHAR(50);
+
+DELETE FROM Services_and_Procedures
+
+
+-- Создание таблицы "Medications"
+CREATE TABLE Medications (
+  ID SERIAL PRIMARY KEY,
+  Name VARCHAR(100),
+  Description TEXT,
+  Price DECIMAL(10, 2)
+);
+
+ALTER TABLE Medications
+ADD isDeleted BOOLEAN;
+
+DELETE FROM Medications
+
+
+-- Создание таблицы "Promotions"
+CREATE TABLE Promotions (
+  ID SERIAL PRIMARY KEY,
+  Name VARCHAR(100),
+  Description TEXT,
+  Start_Date DATE,
+  End_Date DATE
+);
+
+DELETE FROM Promotions
+
+
+-- Создание таблицы "Записи на приём"
+CREATE TABLE Appointments (
+  ID SERIAL PRIMARY KEY,
+  User_ID INT REFERENCES Users(ID),
+  Doctor_ID INT REFERENCES Doctors(ID),
+  Appointment_Date_Time TIMESTAMP
+);
+
+DELETE FROM Appointments
+
+
+-- Создание таблицы "Medical Results"
+CREATE TABLE Medical_Results (
+  ID SERIAL PRIMARY KEY,
+  User_ID INT REFERENCES Users(ID),
+  Doctor_ID INT REFERENCES Doctors(ID),
+  Result_Description TEXT,
+  Date DATE
+);
+
+select * from Medical_Results
+
+DELETE FROM Medical_Results
+
+
+-- Создание таблицы "Diagnoses"
+CREATE TABLE Diagnoses (
+  ID SERIAL PRIMARY KEY,
+  User_ID INT REFERENCES Users(ID),
+  Doctor_ID INT REFERENCES Doctors(ID),
+  Diagnosis_Description TEXT,
+  Date DATE
+);
+
+DELETE FROM Diagnoses
+
+
+
+-- Создание таблицы "Prescribed Medications"
+CREATE TABLE Prescribed_Medications (
+  ID SERIAL PRIMARY KEY,
+  Diagnosis_ID INT REFERENCES Diagnoses(ID),
+  Medication_ID INT REFERENCES Medications(ID),
+  Dosage VARCHAR(100),
+  Duration INT
+);
+drop table Prescribed_Medications;
+
+DELETE FROM Prescribed_Medications
+
+
+-- Создание таблицы "Prescribed Procedures"
+CREATE TABLE Prescribed_Procedures (
+  ID SERIAL PRIMARY KEY,
+  Diagnosis_ID INT REFERENCES Diagnoses(ID),
+  Procedure_ID INT REFERENCES Services_and_Procedures(ID),
+  Duration INT
+);
+
+DELETE FROM Prescribed_Procedures
+
+
+CREATE TABLE Reviews (
+    ID SERIAL PRIMARY KEY,
+    Users_ID INT REFERENCES Users(ID),
+    Review_Text TEXT,
+    Review_Date DATE
+);
+
+DELETE FROM Reviews
+
+
+
+INSERT INTO Users (First_Name, Last_Name, Username, Password, Role)
+VALUES
+	('ad', 'min', 'admin', '1111', 'Administrator');
+
+
+
+INSERT INTO Doctors (First_Name, Last_Name, Specialization, Schedule)
+VALUES
+    ('Кирилл', 'Кореневский', 'Ортопедия', 'Понедельник, Среда, Пятница, 8:00 - 16:00');
+
+
+INSERT INTO Services_and_Procedures (Name, Description, Price, isDeleted, Orientation)
+VALUES
+  ('Анализ гормона т3', 'Лабораторный нализ гормона т3(возможны доп анализы)', 30.00, false, 'Эндокринология'),
+  ('Электрофарез', 'От боли в суставах и мышцах', 80.00, false, 'Терапевтия');
+
+
+INSERT INTO Medications (Name, Description, Price, isDeleted)
+VALUES
+  ('Альгин', 'Обезболивающее средство', 80.00, false),
+  ('Миг', 'От головной боли', 110.00, false);
+
+
+INSERT INTO Promotions (Name, Description, Start_Date, End_Date)
+VALUES
+  ('Весенняя акция', 'Скидки на выбранные услуги', '2024-03-01', '2024-03-31'),
+  ('Летняя распродажа', 'Сниженные цены на медикаменты', '2024-06-01', '2024-06-30');
+
+
+INSERT INTO Appointments (User_ID, Doctor_ID, Appointment_Date_Time)
+VALUES
+  (18, 4, '2024-03-10 10:00:00'),
+  (19, 5, '2024-03-12 14:30:00'),
+  (20, 6, '2024-03-15 11:15:00');
+  
+
+INSERT INTO Medical_Results (User_ID, Doctor_ID, Result_Description, Date)
+VALUES
+  (29, 6, 'Овадлфовдоафдв', '2024-03-16');
+
+
+INSERT INTO Diagnoses (User_ID, Doctor_ID, Diagnosis_Description, Date)
+VALUES
+  (29, 4, 'оаоаоаоа', '2024-03-19');
+
+
+INSERT INTO Prescribed_Medications (Diagnosis_ID, Medication_ID, Dosage, Duration)
+VALUES
+  (7, 6, 'Принимать по одной таблетке в день', 14);
+
+
+INSERT INTO Prescribed_Procedures (Diagnosis_ID, Procedure_ID, Duration)
+VALUES
+  (7, 5, 30);
+  
+  
+  
+
+
+  
+  

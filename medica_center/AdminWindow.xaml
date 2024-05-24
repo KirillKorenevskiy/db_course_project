@@ -1,0 +1,222 @@
+﻿<Window x:Class="medica_center.AdminWindow"
+        xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+        xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+        xmlns:local="clr-namespace:medica_center"
+        mc:Ignorable="d"
+        Title="AdminWindow" Height="800" Width="1500" WindowStartupLocation="CenterScreen">
+    <Grid>
+        <Grid.RowDefinitions>
+            <RowDefinition Height="Auto"/>
+            <RowDefinition Height="*"/>
+        </Grid.RowDefinitions>
+
+        <!-- Header -->
+        <StackPanel Grid.Row="0" Background="LightBlue">
+            <StackPanel Orientation="Horizontal">
+                <TextBlock Text="Медицинский Центр" FontSize="24" FontWeight="Bold" Margin="7"/>
+                <Button Content="Выйти" Margin="1150 0 0 0" Height="30" Click="Button_Click"/>
+            </StackPanel>
+        </StackPanel>
+
+        <!-- Main Content -->
+        <ScrollViewer Grid.Row="1">
+            <StackPanel Margin="10">
+
+                <GroupBox>
+                    <GroupBox.Header>
+                        <TextBlock Text="Изменение врачей" FontSize="16" ></TextBlock>
+                    </GroupBox.Header>
+
+                    <StackPanel Margin="10" Orientation="Horizontal">
+                        <StackPanel Orientation="Vertical" VerticalAlignment="Top" HorizontalAlignment="Left">
+                            <StackPanel Orientation="Horizontal" Margin="0,0,0,10">
+                                <Label Content="Имя:" FontSize="14" HorizontalAlignment="Right" VerticalAlignment="Center" Width="150"/>
+                                <TextBox FontSize="14" Width="200" x:Name="FirstNameTextBox"/>
+                            </StackPanel>
+                            <StackPanel Orientation="Horizontal" Margin="0,0,0,10">
+                                <Label Content="Фамилия:" FontSize="14" HorizontalAlignment="Right" VerticalAlignment="Center" Width="150"/>
+                                <TextBox FontSize="14" Width="200" x:Name="LastNameTextBox"/>
+                            </StackPanel>
+                            <StackPanel Orientation="Horizontal" Margin="0,0,0,10">
+                                <Label Content="Специализация:" FontSize="14" HorizontalAlignment="Right" VerticalAlignment="Center" Width="150"/>
+                                <ComboBox FontSize="16" Width="200" x:Name="SpecializationComboBox">
+                                    <ComboBoxItem Content="Терапевтия" IsSelected="True"/>
+                                    <ComboBoxItem Content="Кардиология"/>
+                                    <ComboBoxItem Content="Эндокринология" />
+                                    <ComboBoxItem Content="Дерматология" />
+                                    <ComboBoxItem Content="Ортопедия" />
+                                    <ComboBoxItem Content="Хирургия" />
+                                </ComboBox>
+                            </StackPanel>
+                            <StackPanel Orientation="Horizontal" Margin="0,0,0,15">
+                                <Label Content="График работы:" FontSize="14" HorizontalAlignment="Right" VerticalAlignment="Center" Width="150"/>
+                                <TextBox FontSize="14" Width="200" x:Name="ScheduleTextBox"/>
+                            </StackPanel>
+                            <StackPanel Orientation="Horizontal" Margin="0,0,0,15">
+                                <Label Content="nickname:" FontSize="14" HorizontalAlignment="Right" VerticalAlignment="Center" Width="150"/>
+                                <TextBox FontSize="14" Width="200" x:Name="NicknameTextBox"/>
+                            </StackPanel>
+                            <StackPanel Orientation="Horizontal" Margin="0,0,0,15">
+                                <Label Content="Пароль:" FontSize="14" HorizontalAlignment="Right" VerticalAlignment="Center" Width="150"/>
+                                <TextBox FontSize="14" Width="200" x:Name="PasswordTextBox"/>
+                            </StackPanel>
+                            <StackPanel Orientation="Horizontal" Margin="0,0,0,10">
+                                <Button Content="Добавить" FontSize="14" Width="100" Click="Button_Click_Add"/>
+                                <Button Content="Удалить" FontSize="14" Width="100" Margin="10,0,10,0" Click="Button_Click_Delete "/>
+                            </StackPanel>
+                            <StackPanel Orientation="Horizontal" Margin="0,0,0,10">
+                                <Button Content="Обновить" FontSize="14" Width="100" Margin="0,0,10,0" Click="Button_Click_Update"/>
+                            </StackPanel>
+                        </StackPanel>
+
+
+                        <DataGrid x:Name="DoctorsDataGrid" AutoGenerateColumns="False" CanUserAddRows="False" Margin="70 10 0 0" Width="486" Height="203" SelectionChanged="DoctorsDataGrid_SelectionChanged">
+                            <DataGrid.Columns>
+                                <DataGridTextColumn Header="ID" Binding="{Binding f_id}" Width="30"/>
+                                <DataGridTextColumn Header="Имя" Binding="{Binding f_first_name}" Width="*"/>
+                                <DataGridTextColumn Header="Фамилия" Binding="{Binding f_last_name}" Width="*"/>
+                                <DataGridTextColumn Header="Специализация" Binding="{Binding f_specialization}" Width="*"/>
+                                <DataGridTextColumn Header="График работы" Binding="{Binding f_schedule}" Width="*"/>
+                            </DataGrid.Columns>
+                        </DataGrid>
+
+                    </StackPanel>
+                </GroupBox>
+
+
+                <GroupBox>
+                    <GroupBox.Header>
+                        <TextBlock Text="Изменение услуг и процедур" FontSize="16" ></TextBlock>
+                    </GroupBox.Header>
+
+                    <StackPanel Margin="10" Orientation="Horizontal">
+                        <StackPanel Margin="10" Orientation="Vertical">
+                            <StackPanel Orientation="Horizontal" Margin="0,0,0,10">
+                                <Label Content="Название:" FontSize="14" HorizontalAlignment="Right" VerticalAlignment="Center" Width="150"/>
+                                <TextBox FontSize="14" Width="200" x:Name="ProcedureNameTextBox"/>
+                            </StackPanel>
+                            <StackPanel Orientation="Horizontal" Margin="0,0,0,10">
+                                <Label Content="Направление:" FontSize="14" HorizontalAlignment="Right" VerticalAlignment="Center" Width="150"/>
+                                <ComboBox FontSize="16" Width="200" x:Name="ProcedureOrientationComboBox">
+                                    <ComboBoxItem Content="Терапевтия" IsSelected="True"/>
+                                    <ComboBoxItem Content="Кардиология"/>
+                                    <ComboBoxItem Content="Эндокринология" />
+                                    <ComboBoxItem Content="Дерматология" />
+                                    <ComboBoxItem Content="Ортопедия" />
+                                    <ComboBoxItem Content="Хирургия" />
+                                </ComboBox>
+                            </StackPanel>
+                            <StackPanel Orientation="Horizontal" Margin="0,0,0,10">
+                                <Label Content="Описание:" FontSize="14" HorizontalAlignment="Right" VerticalAlignment="Center" Width="150"/>
+                                <TextBox FontSize="14" Width="200" x:Name="ProcedureDescriptionTextBox"/>
+                            </StackPanel>
+                            <StackPanel Orientation="Horizontal" Margin="0,0,0,10">
+                                <Label Content="Цена:" FontSize="14" HorizontalAlignment="Right" VerticalAlignment="Center" Width="150"/>
+                                <TextBox FontSize="14" Width="200" x:Name="ProcedurePriceTextBox"/>
+                            </StackPanel>
+                            <StackPanel Orientation="Horizontal" Margin="0,0,0,10">
+                                <Button Content="Добавить" FontSize="14" Width="100" Click="Button_Click_AddProcedure"/>
+                                <Button Content="Обновить" FontSize="14" Width="100" Margin="10,0,10,0" Click="Button_Click_UpdateProcedure"/>
+                                <Button Content="Удалить" FontSize="14" Width="100" Click="Button_Click_DeleteProcedure"/>
+                            </StackPanel>
+                        </StackPanel>
+
+
+                        <DataGrid x:Name="ProceduresDataGrid" AutoGenerateColumns="False" Margin="50 10 0 0" CanUserAddRows="False"  SelectionChanged="ProceduresDataGrid_SelectionChanged">
+                            <DataGrid.Columns>
+                                <DataGridTextColumn Header="ID" Binding="{Binding f_id}"/>
+                                <DataGridTextColumn Header="Название" Binding="{Binding f_name}"/>
+                                <DataGridTextColumn Header="Описание" Binding="{Binding f_description}"/>
+                                <DataGridTextColumn Header="Цена" Binding="{Binding f_price}"/>
+                                <DataGridTextColumn Header="Направление" Binding="{Binding f_orientation}"/>
+                            </DataGrid.Columns>
+                        </DataGrid>
+                    </StackPanel>
+                </GroupBox>
+
+
+                <GroupBox>
+                    <GroupBox.Header>
+                        <TextBlock Text="Изменение медикаментов" FontSize="16" ></TextBlock>
+                    </GroupBox.Header>
+
+                    <StackPanel Margin="10" Orientation="Horizontal">
+                        <StackPanel Margin="10" Orientation="Vertical">
+                            <StackPanel Orientation="Horizontal" Margin="0,0,0,10">
+                                <Label Content="Название:" FontSize="14" HorizontalAlignment="Right" VerticalAlignment="Center" Width="150"/>
+                                <TextBox FontSize="14" Width="200" x:Name="MedicationNameTextBox"/>
+                            </StackPanel>
+                            <StackPanel Orientation="Horizontal" Margin="0,0,0,10">
+                                <Label Content="Описание:" FontSize="14" HorizontalAlignment="Right" VerticalAlignment="Center" Width="150"/>
+                                <TextBox FontSize="14" Width="200" x:Name="MedicationDescriptionTextBox"/>
+                            </StackPanel>
+                            <StackPanel Orientation="Horizontal" Margin="0,0,0,10">
+                                <Label Content="Цена:" FontSize="14" HorizontalAlignment="Right" VerticalAlignment="Center" Width="150"/>
+                                <TextBox FontSize="14" Width="200" x:Name="MedicationPriceTextBox"/>
+                            </StackPanel>
+                            <StackPanel Orientation="Horizontal" Margin="0,0,0,10">
+                                <Button Content="Добавить" FontSize="14" Width="100" Click="Button_Click_AddMedication"/>
+                                <Button Content="Обновить" FontSize="14" Width="100" Margin="10,0,10,0" Click="Button_Click_UpdateMedication"/>
+                                <Button Content="Удалить" FontSize="14" Width="100" Click="Button_Click_DeleteMedication"/>
+                            </StackPanel>
+                        </StackPanel>
+
+
+                        <DataGrid x:Name="MedicationsDataGrid" AutoGenerateColumns="False" Margin="50 10 0 0" CanUserAddRows="False"  SelectionChanged="MedicationsDataGrid_SelectionChanged">
+                            <DataGrid.Columns>
+                                <DataGridTextColumn Header="ID" Binding="{Binding f_id}"/>
+                                <DataGridTextColumn Header="Название" Binding="{Binding f_name}"/>
+                                <DataGridTextColumn Header="Описание" Binding="{Binding f_description}"/>
+                                <DataGridTextColumn Header="Цена" Binding="{Binding f_price}"/>
+                            </DataGrid.Columns>
+                        </DataGrid>
+                    </StackPanel>
+                </GroupBox>
+
+
+                <GroupBox>
+                    <GroupBox.Header>
+                        <TextBlock Text="Изменение акций" FontSize="16" ></TextBlock>
+                    </GroupBox.Header>
+
+                    <StackPanel Margin="10" Orientation="Horizontal">
+                        <StackPanel Margin="10" Orientation="Vertical">
+                            <StackPanel Orientation="Horizontal" Margin="0,0,0,10">
+                                <Label Content="Название:" FontSize="14" HorizontalAlignment="Right" VerticalAlignment="Center" Width="150"/>
+                                <TextBox FontSize="14" Width="200" x:Name="PromotionNameTextBox"/>
+                            </StackPanel>
+                            <StackPanel Orientation="Horizontal" Margin="0,0,0,10">
+                                <Label Content="Описание:" FontSize="14" HorizontalAlignment="Right" VerticalAlignment="Center" Width="150"/>
+                                <TextBox FontSize="14" Width="200" x:Name="PromotionDescriptionTextBox"/>
+                            </StackPanel>
+                            <StackPanel Orientation="Horizontal" Margin="0,0,0,10">
+                                <Label Content="Дата начала:" FontSize="14" HorizontalAlignment="Right" VerticalAlignment="Center" Width="150"/>
+                                <DatePicker FontSize="14" Width="200" x:Name="PromotionStartDatePicker"/>
+                            </StackPanel>
+                            <StackPanel Orientation="Horizontal" Margin="0,0,0,10">
+                                <Label Content="Дата окончания:" FontSize="14" HorizontalAlignment="Right" VerticalAlignment="Center" Width="150"/>
+                                <DatePicker FontSize="14" Width="200" x:Name="PromotionEndDatePicker"/>
+                            </StackPanel>
+                            <StackPanel Orientation="Horizontal" Margin="0,0,0,10">
+                                <Button Content="Добавить" FontSize="14" Width="100" Click="Button_Click_AddPromotion"/>
+                                <Button Content="Удалить" FontSize="14" Width="100" Click="Button_Click_DeletePromotion"/>
+                            </StackPanel>
+                        </StackPanel>
+
+                        <DataGrid x:Name="PromotionsDataGrid" AutoGenerateColumns="False" CanUserAddRows="False" Margin="50 10 0 0" SelectionChanged="PromotionsDataGrid_SelectionChanged">
+                            <DataGrid.Columns>
+                                <DataGridTextColumn Header="ID" Binding="{Binding f_id}"/>
+                                <DataGridTextColumn Header="Название" Binding="{Binding f_name}"/>
+                                <DataGridTextColumn Header="Описание" Binding="{Binding f_description}"/>
+                                <DataGridTextColumn Header="Дата начала" Binding="{Binding f_start_date}"/>
+                                <DataGridTextColumn Header="Дата окончания" Binding="{Binding f_end_date}"/>
+                            </DataGrid.Columns>
+                        </DataGrid>
+                    </StackPanel>
+                </GroupBox>
+            </StackPanel>
+        </ScrollViewer>
+    </Grid>
+</Window>

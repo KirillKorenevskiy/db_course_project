@@ -1,0 +1,560 @@
+CREATE OR REPLACE FUNCTION get_all_doctors_for_admin()
+RETURNS TABLE (
+  f_ID INT,
+  f_First_Name VARCHAR(50),
+  f_Last_Name VARCHAR(50),
+  f_Specialization VARCHAR(100),
+  f_Schedule VARCHAR(100)
+)
+SECURITY DEFINER
+AS $$
+BEGIN
+  RETURN QUERY
+  SELECT ID, First_Name, Last_Name, Specialization, Schedule
+  FROM Doctors;
+END;
+$$ LANGUAGE plpgsql;
+
+select * from get_all_doctors();
+
+drop function get_all_doctors;
+
+
+CREATE OR REPLACE PROCEDURE add_doctor(
+  p_First_Name VARCHAR(50),
+  p_Last_Name VARCHAR(50),
+  p_Specialization VARCHAR(100),
+  p_Schedule VARCHAR(100),
+  p_Username VARCHAR(50),
+  p_Password VARCHAR(50)
+)
+SECURITY DEFINER
+AS $$
+DECLARE
+  hashed_password VARCHAR(100);
+BEGIN
+  INSERT INTO Doctors (First_Name, Last_Name, Specialization, Schedule)
+  VALUES (p_First_Name, p_Last_Name, p_Specialization, p_Schedule);
+
+  hashed_password := crypt(p_Password, gen_salt('bf'));
+  
+  INSERT INTO Users (First_Name, Last_Name, Username, Password, Role)
+  VALUES (p_First_Name, p_Last_Name, p_Username, hashed_password, 'Doctor');
+  
+END;
+$$ LANGUAGE plpgsql;
+
+
+
+
+CREATE OR REPLACE FUNCTION CheckDoctorExists(p_First_Name VARCHAR(50), p_Last_Name VARCHAR(50), p_Username VARCHAR(50))
+RETURNS BOOLEAN
+SECURITY DEFINER
+AS $$
+DECLARE
+  v_UsernameExists BOOLEAN;
+BEGIN
+  SELECT EXISTS (
+    SELECT 1
+    FROM Users
+    WHERE Username = p_Username
+  ) INTO v_UsernameExists;
+
+  IF v_UsernameExists THEN
+    RETURN TRUE;
+  END IF;
+
+  RETURN EXISTS (
+    SELECT 1
+    FROM Doctors
+    WHERE First_Name = p_First_Name AND Last_Name = p_Last_Name
+  );
+END;
+$$ LANGUAGE plpgsql;
+
+
+CREATE OR REPLACE PROCEDURE delete_doctor_by_name(
+  p_first_name VARCHAR(50),
+  p_last_name VARCHAR(50)
+)
+SECURITY DEFINER
+AS $$
+BEGIN
+  IF NOT EXISTS (
+    SELECT 1 FROM Doctors WHERE First_Name = p_first_name AND Last_Name = p_last_name
+  ) THEN
+    RAISE EXCEPTION 'Врач с указанным именем не найден.';
+  END IF;
+  DELETE FROM Doctors WHERE First_Name = p_first_name AND Last_Name = p_last_name;
+END;
+$$ LANGUAGE plpgsql;
+
+
+
+CREATE OR REPLACE FUNCTION CheckDoctorReference(p_Doctor_ID INT)
+RETURNS BOOLEAN
+SECURITY DEFINER
+AS $$
+BEGIN
+  RETURN EXISTS (
+    SELECT 1
+    FROM Medical_Results
+    WHERE Doctor_ID = p_Doctor_ID
+  ) OR EXISTS (
+    SELECT 1
+    FROM Diagnoses
+    WHERE Doctor_ID = p_Doctor_ID
+  );
+END;
+$$ LANGUAGE plpgsql;
+
+
+
+
+CREATE OR REPLACE PROCEDURE update_doctor(
+  doctor_id INT,
+  first_name VARCHAR(50),
+  last_name VARCHAR(50),
+  specialization VARCHAR(100),
+  schedule VARCHAR(100)
+) 
+SECURITY DEFINER
+AS $$
+BEGIN
+  UPDATE Doctors
+  SET First_Name = update_doctor.first_name,
+      Last_Name = update_doctor.last_name,
+      Specialization = update_doctor.specialization,
+      Schedule = update_doctor.schedule
+  WHERE ID = update_doctor.doctor_id;
+END;
+$$ LANGUAGE plpgsql;
+
+DROP PROCEDURE IF EXISTS update_doctor;
+
+CALL update_doctor(7, 'Кардиолог', 'Пн-Ср, 10:00-16:00');
+
+
+
+CREATE OR REPLACE PROCEDURE add_promotion(
+  p_name VARCHAR(100),
+  p_description TEXT,
+  p_start_date DATE,
+  p_end_date DATE
+) AS $$
+BEGIN
+  IF EXISTS (
+    SELECT 1 FROM Promotions p
+    WHERE p.Name = p_name
+  ) THEN
+    RAISE EXCEPTION 'Акция с таким названием уже существует.';
+  END IF;
+  INSERT INTO Promotions (Name, Description, Start_Date, End_Date)
+  VALUES (p_name, p_description, p_start_date, p_end_date);
+END;
+$$ LANGUAGE plpgsql;
+
+drop procedure add_promotion;
+
+CALL add_promotion('Скидка на консультации', 'Скидка 20% на все консультации', '2024-03-20', '2024-03-31');
+
+
+
+CREATE OR REPLACE FUNCTION get_all_procedures_for_admin()
+RETURNS TABLE (
+  f_ID INT,
+  f_Name VARCHAR(100),
+  f_Description TEXT,
+  f_Price DECIMAL(10, 2),
+  f_isDeleted boolean,
+  f_Orientation VARCHAR(50)
+)
+SECURITY DEFINER
+AS $$
+BEGIN
+  RETURN QUERY SELECT * FROM Services_and_Procedures
+  WHERE isDeleted = false;
+END;
+$$ LANGUAGE plpgsql;
+
+drop function get_all_procedures_for_admin;
+
+
+CREATE OR REPLACE PROCEDURE update_procedure(
+  p_id INT,
+  p_name VARCHAR(100),
+  p_description TEXT,
+  p_price DECIMAL(10, 2),
+  p_orientation VARCHAR(50)
+) 
+SECURITY DEFINER
+AS $$
+BEGIN
+  UPDATE Services_and_Procedures
+  SET Name = p_name,
+      Description = p_description,
+      Price = p_price,
+	  Orientation = p_orientation
+  WHERE ID = p_id;
+END;
+$$ LANGUAGE plpgsql;
+
+drop PROCEDURE update_procedure;
+
+
+CREATE OR REPLACE PROCEDURE delete_procedure(
+  p_id INT
+) 
+SECURITY DEFINER
+AS $$
+BEGIN
+  UPDATE Services_and_Procedures
+  SET isDeleted = true
+  WHERE ID = p_id;
+END;
+$$ LANGUAGE plpgsql;
+
+
+CREATE OR REPLACE PROCEDURE add_procedure(
+  p_name VARCHAR(100),
+  p_description TEXT,
+  p_price DECIMAL(10, 2),
+  p_orientation VARCHAR(50)
+) 
+SECURITY DEFINER
+AS $$
+BEGIN
+  INSERT INTO Services_and_Procedures (Name, Description, Price, isDeleted, Orientation)
+  VALUES (p_name, p_description, p_price, false, p_orientation);
+END;
+$$ LANGUAGE plpgsql;
+
+drop procedure add_procedure;
+
+
+CREATE OR REPLACE FUNCTION check_procedure_exists(p_procedure_name VARCHAR(100))
+RETURNS BOOLEAN
+SECURITY DEFINER
+AS $$
+BEGIN
+  RETURN EXISTS (
+    SELECT 1
+    FROM Services_and_Procedures
+    WHERE Name = p_procedure_name
+  );
+END;
+$$ LANGUAGE plpgsql;
+
+
+CREATE OR REPLACE FUNCTION check_prcedure_reference(p_Procedure_ID INT)
+RETURNS BOOLEAN
+SECURITY DEFINER
+AS $$
+BEGIN
+  RETURN EXISTS (
+    SELECT 1
+    FROM Prescribed_Procedures
+    WHERE Procedure_ID = p_Procedure_ID
+  );
+END;
+$$ LANGUAGE plpgsql;
+
+
+
+
+
+
+CREATE OR REPLACE FUNCTION get_all_medication_for_admin()
+RETURNS TABLE (
+  f_ID INT,
+  f_Name VARCHAR(100),
+  f_Description TEXT,
+  f_Price DECIMAL(10, 2),
+  f_isDeleted boolean
+)
+SECURITY DEFINER
+AS $$
+BEGIN
+RETURN QUERY SELECT * FROM Medications
+  WHERE isDeleted = false;
+END;
+$$ LANGUAGE plpgsql;
+
+drop function get_all_medication_for_admin;
+
+
+CREATE OR REPLACE PROCEDURE update_medication(
+  p_id INT,
+  p_name VARCHAR(100),
+  p_description TEXT,
+  p_price DECIMAL(10, 2)
+) 
+SECURITY DEFINER
+AS $$
+BEGIN
+  UPDATE Medications
+  SET Name = p_name,
+      Description = p_description,
+      Price = p_price
+  WHERE ID = p_id;
+END;
+$$ LANGUAGE plpgsql;
+
+
+CREATE OR REPLACE PROCEDURE delete_medication(
+  p_id INT
+) 
+SECURITY DEFINER
+AS $$
+BEGIN
+  UPDATE Medications
+  SET isDeleted = true
+  WHERE ID = p_id;
+END;
+$$ LANGUAGE plpgsql;
+
+
+CREATE OR REPLACE PROCEDURE add_medication(
+  p_name VARCHAR(100),
+  p_description TEXT,
+  p_price DECIMAL(10, 2)
+) 
+SECURITY DEFINER
+AS $$
+BEGIN
+  INSERT INTO Medications (Name, Description, Price, isDeleted)
+  VALUES (p_name, p_description, p_price, false);
+END;
+$$ LANGUAGE plpgsql;
+
+
+CREATE OR REPLACE FUNCTION check_medication_exists(p_medication_name VARCHAR(100))
+RETURNS BOOLEAN
+SECURITY DEFINER
+AS $$
+BEGIN
+  RETURN EXISTS (
+    SELECT 1
+    FROM Medications
+    WHERE Name = p_medication_name
+  );
+END;
+$$ LANGUAGE plpgsql;
+
+
+CREATE OR REPLACE FUNCTION check_medication_reference(p_Medication_ID INT)
+RETURNS BOOLEAN
+SECURITY DEFINER
+AS $$
+BEGIN
+  RETURN EXISTS (
+    SELECT 1
+    FROM Prescribed_Medications
+    WHERE Medication_ID = p_Medication_ID
+  );
+END;
+$$ LANGUAGE plpgsql;
+
+
+
+
+CREATE OR REPLACE FUNCTION get_all_promotions_for_admin()
+RETURNS TABLE (
+    f_ID INT,
+    f_Name VARCHAR(100),
+    f_Description TEXT,
+    f_Start_Date DATE,
+    f_End_Date DATE
+)
+SECURITY DEFINER
+AS $$
+BEGIN
+    RETURN QUERY
+  SELECT *
+  FROM Promotions
+  WHERE EXTRACT(YEAR FROM Start_Date) = EXTRACT(YEAR FROM CURRENT_DATE)
+    AND Start_Date >= DATE_TRUNC('month', CURRENT_DATE)
+    AND Start_Date < DATE_TRUNC('month', CURRENT_DATE) + INTERVAL '1 month'
+  LIMIT 10;
+END;
+$$ LANGUAGE plpgsql;
+
+select * from get_all_promotions_for_admin()
+
+explain ANALYZE  SELECT *
+  FROM Promotions
+  WHERE EXTRACT(YEAR FROM Start_Date) = EXTRACT(YEAR FROM CURRENT_DATE)
+    AND Start_Date >= DATE_TRUNC('month', CURRENT_DATE)
+    AND Start_Date < DATE_TRUNC('month', CURRENT_DATE) + INTERVAL '1 month'
+  LIMIT 5;
+
+
+
+CREATE OR REPLACE PROCEDURE add_promotion(
+    p_Name VARCHAR(100),
+    p_Description TEXT,
+    p_Start_Date timestamp without time zone,
+    p_End_Date timestamp without time zone
+)
+SECURITY DEFINER
+AS $$
+BEGIN
+    INSERT INTO Promotions (Name, Description, Start_Date, End_Date)
+    VALUES (p_Name, p_Description, p_Start_Date, p_End_Date);
+END;
+$$ LANGUAGE plpgsql;
+
+
+CREATE OR REPLACE PROCEDURE delete_promotion(p_ID INT)
+SECURITY DEFINER
+AS $$
+BEGIN
+    DELETE FROM Promotions
+    WHERE ID = p_ID;
+END;
+$$ LANGUAGE plpgsql;
+
+
+CREATE OR REPLACE FUNCTION check_promotion_exists(p_Name VARCHAR(100))
+RETURNS BOOLEAN
+SECURITY DEFINER
+AS $$
+BEGIN
+    RETURN EXISTS (
+        SELECT 1
+        FROM Promotions
+        WHERE Name = p_Name
+    );
+END;
+$$ LANGUAGE plpgsql;
+
+
+
+
+
+CREATE OR REPLACE PROCEDURE add_medical_results(
+  user_id INT,
+  doctor_id INT,
+  result_description TEXT,
+  date DATE
+) AS $$
+BEGIN
+  INSERT INTO Medical_Results (User_ID, Doctor_ID, Result_Description, Date)
+  VALUES (user_id, doctor_id, result_description, date);
+END;
+$$ LANGUAGE plpgsql;
+
+CALL add_medical_results(55, 18, 'Повышеное содержание лейкоцитов', '2024-03-15');
+
+
+
+
+
+
+CREATE OR REPLACE PROCEDURE AddUser(
+    in_first_name VARCHAR(50),
+    in_last_name VARCHAR(50),
+    in_username VARCHAR(50),
+    in_password VARCHAR(50),
+    in_role VARCHAR(50)
+)
+AS $$
+BEGIN
+    IF NOT EXISTS (SELECT 1 FROM Users WHERE Username = in_username) THEN
+        DECLARE
+            hashed_password VARCHAR(100);
+        BEGIN
+            hashed_password := crypt(in_password, gen_salt('bf'));
+            INSERT INTO Users (First_Name, Last_Name, Username, Password, Role)
+            VALUES (in_first_name, in_last_name, in_username, hashed_password, in_role);
+        END;
+    ELSE
+        RAISE EXCEPTION 'Пользователь с таким username уже есть.';
+    END IF;
+END;
+$$
+LANGUAGE plpgsql;
+
+CALL AddUser('ad', 'min', 'admin', '1111', 'Administrator');
+
+
+
+CREATE OR REPLACE FUNCTION check_credentials(
+    in_username VARCHAR(50),
+    in_password VARCHAR(50),
+    in_role VARCHAR(50)
+)
+RETURNS BOOLEAN AS $$
+DECLARE
+    hashed_password VARCHAR(100);
+BEGIN
+    SELECT Password INTO hashed_password
+    FROM Users
+    WHERE Username = in_username
+	AND Role = in_role;
+
+    RETURN hashed_password = crypt(in_password, hashed_password);
+END;
+$$
+LANGUAGE plpgsql;
+
+select check_credentials('23as', '1234','Client');
+
+
+SELECT * FROM public.users
+ORDER BY id ASC
+
+
+
+
+
+
+
+
+CREATE OR REPLACE FUNCTION GetDoctorIdByUserId(user_id INT)
+  RETURNS INT 
+SECURITY DEFINER
+AS $$
+DECLARE
+  doctor_id INT;
+  user_first_name VARCHAR;
+  user_last_name VARCHAR;
+BEGIN
+
+  SELECT First_Name, Last_Name INTO user_first_name, user_last_name
+  FROM Users
+  WHERE ID = user_id;
+
+  SELECT ID INTO doctor_id
+  FROM Doctors
+  WHERE First_Name = user_first_name AND Last_Name = user_last_name
+  LIMIT 1;
+
+  RETURN doctor_id;
+END;
+$$
+LANGUAGE plpgsql;
+
+SELECT * from GetDoctorIdByUserId(31);
+
+
+
+
+CREATE OR REPLACE FUNCTION get_user_id_by_username(f_username VARCHAR)
+RETURNS INT
+SECURITY DEFINER
+AS $$
+DECLARE
+    user_id INT;
+BEGIN
+    SELECT id INTO user_id
+    FROM Users
+    WHERE Username = f_username;
+
+    RETURN user_id;
+END;
+$$ LANGUAGE plpgsql;
+
+
+
+

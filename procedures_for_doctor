@@ -1,0 +1,293 @@
+CREATE OR REPLACE FUNCTION get_all_users()
+  RETURNS TABLE (userID int, FirstName VARCHAR(50), LastName VARCHAR(50), nickname VARCHAR(50))
+  SECURITY DEFINER
+AS $$
+BEGIN
+  RETURN QUERY
+  SELECT ID, First_Name, Last_Name, Username
+  FROM Users
+  WHERE Role = 'Client';
+END;
+$$
+LANGUAGE plpgsql;
+
+select * from get_all_users();
+
+drop function get_all_users;
+
+
+CREATE OR REPLACE FUNCTION view_medical_results(user_id INT)
+RETURNS TABLE (Userr_ID INT, Result_Description TEXT, Date DATE) 
+  SECURITY DEFINER
+AS $$
+BEGIN
+  RETURN QUERY SELECT m.User_ID, m.Result_Description, m.Date
+               FROM Medical_Results m
+               WHERE m.User_ID = view_medical_results.user_id;
+END;
+$$ LANGUAGE plpgsql;
+
+drop function view_medical_results;
+
+SELECT * FROM view_medical_results(19);
+
+
+
+
+CREATE OR REPLACE PROCEDURE update_doctor_schedule(doctor_id INT, new_schedule VARCHAR(100))
+SECURITY DEFINER
+AS $$
+BEGIN
+    UPDATE Doctors
+    SET Schedule = new_schedule
+    WHERE ID = doctor_id;
+    
+    IF NOT FOUND THEN
+        RAISE EXCEPTION 'Врач с указанным идентификатором не найден.';
+    END IF;
+EXCEPTION
+    WHEN OTHERS THEN
+        RAISE EXCEPTION 'Произошла ошибка при обновлении графика работы врача.';
+END;
+$$ LANGUAGE plpgsql;
+
+CALL update_doctor_schedule(7, 'Понедельник-Суббота, 9:00 - 18:00');
+
+
+
+
+CREATE OR REPLACE PROCEDURE set_diagnoses(user_id INT, doctor_id INT, diagnosis_description TEXT)
+SECURITY DEFINER
+AS $$
+BEGIN
+    INSERT INTO Diagnoses (User_ID, Doctor_ID, Diagnosis_Description, Date)
+    VALUES (user_id, doctor_id, diagnosis_description, CURRENT_DATE);
+EXCEPTION
+    WHEN check_violation THEN
+        RAISE EXCEPTION 'Ошибка при установке диагноза: нарушение условий проверки.';
+    WHEN not_null_violation THEN
+        RAISE EXCEPTION 'Ошибка при установке диагноза: неуказано обязательное значение.';
+    WHEN foreign_key_violation THEN
+        RAISE EXCEPTION 'Ошибка при установке диагноза: нарушение внешнего ключа.';
+    WHEN OTHERS THEN
+        RAISE EXCEPTION 'Произошла ошибка при установке диагноза.';
+END;
+$$ LANGUAGE plpgsql;
+
+drop procedure set_diagnosis(int,int,text);
+CALL set_diagnosis(20, 7, 'Грипп', '2024-03-20');
+
+
+
+
+
+CREATE OR REPLACE PROCEDURE prescribe_medications(diagnosis_id INT, medication_id INT, dosage VARCHAR(100), duration INT)
+SECURITY DEFINER
+AS $$
+BEGIN
+    INSERT INTO Prescribed_Medications (Diagnosis_ID, Medication_ID, Dosage, Duration)
+    VALUES (diagnosis_id, medication_id, dosage, duration);
+EXCEPTION
+    WHEN check_violation THEN
+        RAISE EXCEPTION 'Ошибка при назначении лекарств: нарушение условий проверки.';
+    WHEN not_null_violation THEN
+        RAISE EXCEPTION 'Ошибка при назначении лекарств: неуказано обязательное значение.';
+    WHEN foreign_key_violation THEN
+        RAISE EXCEPTION 'Ошибка при назначении лекарств: нарушение внешнего ключа.';
+    WHEN OTHERS THEN
+        RAISE EXCEPTION 'Произошла ошибка при назначении лекарств.';
+END;
+$$ LANGUAGE plpgsql;
+
+drop procedure prescribe_medications
+
+CALL prescribe_medications(3, 5, 'Принимать по две таблетки в день', 14);
+
+
+
+
+CREATE OR REPLACE PROCEDURE prescribe_procedures(diagnosis_id INT, procedure_id INT, duration INT)
+SECURITY DEFINER
+AS $$
+BEGIN
+    INSERT INTO Prescribed_Procedures (Diagnosis_ID, Procedure_ID, Duration)
+    VALUES (diagnosis_id, procedure_id, duration);
+EXCEPTION
+    WHEN check_violation THEN
+        RAISE EXCEPTION 'Ошибка при назначении процедур: нарушение условий проверки.';
+    WHEN not_null_violation THEN
+        RAISE EXCEPTION 'Ошибка при назначении процедур: неуказано обязательное значение.';
+    WHEN foreign_key_violation THEN
+        RAISE EXCEPTION 'Ошибка при назначении процедур: нарушение внешнего ключа.';
+    WHEN OTHERS THEN
+        RAISE EXCEPTION 'Произошла ошибка при назначении процедур.';
+END;
+$$ LANGUAGE plpgsql;
+
+CALL prescribe_procedures(2, 5, 60);
+
+
+
+
+CREATE OR REPLACE FUNCTION GetDoctorById(doctor_id INT)
+  RETURNS TABLE (First_Name VARCHAR, Last_Name VARCHAR, Specialization VARCHAR, Schedule VARCHAR) 
+  SECURITY DEFINER
+  AS $$
+BEGIN
+  RETURN QUERY
+  SELECT d.First_Name, d.Last_Name, d.Specialization, d.Schedule
+  FROM Doctors d
+  WHERE d.ID = doctor_id;
+END;
+$$
+LANGUAGE plpgsql;
+
+drop function GetDoctorById;
+
+
+CREATE FUNCTION check_existing_diagnosis(f_user_id INT) RETURNS BOOLEAN 
+SECURITY DEFINER
+AS $$
+BEGIN
+    RETURN EXISTS (SELECT 1 FROM Diagnoses WHERE User_ID = f_user_id);
+END;
+$$ LANGUAGE plpgsql;
+
+drop function check_existing_diagnosis(int);
+
+
+CREATE FUNCTION get_all_medications() RETURNS TABLE (
+    med_ID INT,
+    med_Name VARCHAR(100),
+    med_Description TEXT,
+    med_Price DECIMAL(10, 2)
+) 
+SECURITY DEFINER
+AS $$
+BEGIN
+    RETURN QUERY SELECT ID, Name, Description, Price FROM Medications;
+END;
+$$ LANGUAGE plpgsql;
+
+select * from get_all_medications();
+
+drop function get_all_medications;
+
+
+CREATE OR REPLACE FUNCTION get_all_procedures() RETURNS TABLE (
+    proc_ID INT,
+    proc_Name VARCHAR(100),
+    proc_Description TEXT,
+    proc_Price DECIMAL(10, 2)
+) 
+SECURITY DEFINER
+AS $$
+BEGIN
+    RETURN QUERY SELECT ID, Name, Description, Price FROM Services_and_Procedures
+	where isDeleted = false;
+END;
+$$ LANGUAGE plpgsql;
+
+select * from get_all_procedures();
+
+
+drop function get_all_procedures;
+
+
+CREATE OR REPLACE FUNCTION CheckPrescribedMedication(
+    medication_name VARCHAR(100),
+    OUT is_prescribed BOOLEAN
+)
+RETURNS BOOLEAN
+SECURITY DEFINER
+AS $$
+BEGIN
+    SELECT EXISTS (
+        SELECT 1
+        FROM Prescribed_Medications pm
+        INNER JOIN Medications m ON pm.Medication_ID = m.ID
+        WHERE m.Name = medication_name
+    ) INTO is_prescribed;
+END;
+$$ LANGUAGE plpgsql;
+
+select CheckPrescribedMedication('Амоксициллин');
+
+
+
+
+CREATE OR REPLACE FUNCTION CheckPrescribedProcedure(
+    procedure_name VARCHAR(100),
+    OUT is_prescribed BOOLEAN
+)
+RETURNS BOOLEAN
+SECURITY DEFINER
+AS $$
+BEGIN
+    SELECT EXISTS (
+        SELECT 1
+        FROM Prescribed_Procedures pp
+        INNER JOIN Services_and_Procedures sp ON pp.Procedure_ID = sp.ID
+        WHERE sp.Name = procedure_name
+    ) INTO is_prescribed;
+END;
+$$ LANGUAGE plpgsql;
+
+select CheckPrescribedProcedure('Общий осмотр');
+
+
+CREATE OR REPLACE FUNCTION encrypt_diagnosis_description()
+RETURNS TRIGGER AS $$
+BEGIN
+    NEW.diagnosis_description = pgp_sym_encrypt(NEW.diagnosis_description, 'awsdqwerty');
+    RETURN NEW;
+END;
+$$ LANGUAGE plpgsql;
+
+CREATE TRIGGER encrypt_diagnosis_trigger
+BEFORE INSERT ON Diagnoses
+FOR EACH ROW
+EXECUTE FUNCTION encrypt_diagnosis_description();
+
+
+CREATE OR REPLACE FUNCTION export_user_statistics(userr_id INT)
+RETURNS VOID 
+SECURITY DEFINER
+AS $$
+DECLARE
+    user_first_name TEXT;
+    user_last_name TEXT;
+    medical_result TEXT;
+    diagnos TEXT;
+    appointments_count INT;
+	reviews_count INT;
+BEGIN
+    SELECT First_Name INTO user_first_name FROM Users WHERE ID = userr_id;
+    SELECT Last_Name INTO user_last_name FROM Users WHERE ID = userr_id;
+    SELECT Result_Description INTO medical_result FROM Medical_Results WHERE User_ID = userr_id;
+    SELECT pgp_sym_decrypt(Diagnosis_Description::bytea, 'awsdqwerty') AS Diagnosis_Description INTO diagnos FROM Diagnoses WHERE User_ID = userr_id;
+    SELECT COUNT(*) INTO appointments_count FROM Appointments WHERE User_ID = userr_id;
+	SELECT COUNT(*) INTO reviews_count FROM Reviews WHERE Users_ID = userr_id;
+
+    EXECUTE format(
+        'COPY (
+            SELECT JSONB_BUILD_OBJECT(
+                ''Имя'', %L,
+                ''Фамилия'', %L,
+                ''Результат обследования'', %L,
+                ''Диагноз'', %L,
+                ''Количество записей на приём'', %L,
+				''Количество оставленных коментариев'', %L
+            )
+        ) TO %L',
+        user_first_name, user_last_name, medical_result, diagnos, appointments_count,reviews_count, 'C:\Program Files\PostgreSQL\15\data\userInformation.json'
+    );
+END;
+$$ LANGUAGE plpgsql;
+
+
+
+
+
+
+

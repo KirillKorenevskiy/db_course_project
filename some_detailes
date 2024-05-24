@@ -1,0 +1,116 @@
+
+-- Создание пользователя клиента
+CREATE USER Clientt WITH PASSWORD 'client';
+
+GRANT EXECUTE ON PROCEDURE make_appointment TO Clientt;
+GRANT EXECUTE ON FUNCTION get_user_appointments(INT) TO Clientt;
+GRANT EXECUTE ON PROCEDURE cancel_appointment TO Clientt;
+GRANT EXECUTE ON FUNCTION get_all_doctors() TO Clientt;
+GRANT EXECUTE ON FUNCTION get_services_and_procedures() TO Clientt;
+GRANT EXECUTE ON FUNCTION get_promotions(INT, INT) TO Clientt;
+GRANT EXECUTE ON FUNCTION get_user_nickname(int) TO Clientt;
+GRANT EXECUTE ON FUNCTION get_recent_reviews_with_nickname() TO Clientt;
+GRANT EXECUTE ON PROCEDURE leave_review TO Clientt;
+GRANT EXECUTE ON FUNCTION get_prescribed_procedures(INT) TO Clientt;
+GRANT EXECUTE ON FUNCTION get_prescribed_medications(INT) TO Clientt;
+GRANT EXECUTE ON FUNCTION get_doctors_for_combobox() TO Clientt;
+GRANT EXECUTE ON FUNCTION filter_services(DECIMAL,DECIMAL,VARCHAR) TO Clientt;
+GRANT EXECUTE ON FUNCTION import_json_data() TO Clientt;
+
+
+
+
+
+
+-- Создание пользователя доктора
+CREATE USER Doctorr WITH PASSWORD 'doctor';
+
+GRANT EXECUTE ON FUNCTION GetDoctorById(int) TO Doctorr;
+GRANT EXECUTE ON PROCEDURE update_doctor_schedule TO Doctorr;
+GRANT EXECUTE ON FUNCTION get_all_users TO Doctorr;
+GRANT EXECUTE ON FUNCTION view_medical_results(int) TO Doctorr;
+GRANT EXECUTE ON PROCEDURE set_diagnoses TO Doctorr;
+GRANT EXECUTE ON FUNCTION check_existing_diagnosis(int) TO Doctorr;
+GRANT EXECUTE ON PROCEDURE prescribe_medications TO Doctorr;
+GRANT EXECUTE ON PROCEDURE prescribe_procedures TO Doctorr;
+GRANT EXECUTE ON FUNCTION get_all_medications TO Doctorr;
+GRANT EXECUTE ON FUNCTION get_all_procedures TO Doctorr;
+GRANT EXECUTE ON FUNCTION CheckPrescribedMedication(VARCHAR) TO Doctorr;
+GRANT EXECUTE ON FUNCTION CheckPrescribedProcedure(VARCHAR) TO Doctorr;
+GRANT EXECUTE ON FUNCTION CheckPrescribedProcedure(VARCHAR) TO Doctorr;
+
+
+
+
+
+-- Создание пользователя админа
+CREATE USER Adminn WITH PASSWORD 'administrator';
+
+GRANT EXECUTE ON PROCEDURE AddUser TO Adminn;
+GRANT EXECUTE ON FUNCTION GetDoctorIdByUserId(int) TO Adminn;
+GRANT EXECUTE ON FUNCTION get_all_doctors() TO Adminn;
+GRANT EXECUTE ON FUNCTION CheckDoctorExists(VARCHAR,VARCHAR,VARCHAR) TO Adminn;
+GRANT EXECUTE ON PROCEDURE add_doctor(VARCHAR,VARCHAR,VARCHAR,VARCHAR,VARCHAR,VARCHAR) TO Adminn;
+GRANT EXECUTE ON PROCEDURE update_doctor TO Adminn;
+GRANT EXECUTE ON PROCEDURE delete_doctor_by_name TO Adminn;
+GRANT EXECUTE ON FUNCTION CheckDoctorReference(INT) TO Adminn;
+GRANT EXECUTE ON PROCEDURE update_procedure TO Adminn;
+GRANT EXECUTE ON PROCEDURE delete_procedure TO Adminn;
+GRANT EXECUTE ON PROCEDURE add_procedure TO Adminn;
+GRANT EXECUTE ON FUNCTION check_procedure_exists(VARCHAR) TO Adminn;
+GRANT EXECUTE ON FUNCTION get_all_procedures_for_admin() TO Adminn;
+GRANT EXECUTE ON FUNCTION check_prcedure_reference(INT) TO Adminn;
+GRANT EXECUTE ON PROCEDURE update_medication TO Adminn;
+GRANT EXECUTE ON PROCEDURE delete_medication TO Adminn;
+GRANT EXECUTE ON PROCEDURE add_medication TO Adminn;
+GRANT EXECUTE ON FUNCTION check_medication_exists(VARCHAR) TO Adminn;
+GRANT EXECUTE ON FUNCTION get_all_medication_for_admin() TO Adminn;
+GRANT EXECUTE ON FUNCTION check_medication_reference(INT) TO Adminn;
+GRANT EXECUTE ON FUNCTION check_promotion_exists(VARCHAR) TO Adminn;
+GRANT EXECUTE ON PROCEDURE delete_promotion TO Adminn;
+GRANT EXECUTE ON PROCEDURE add_promotion TO Adminn;
+GRANT EXECUTE ON FUNCTION export_user_statistics(INT) TO Adminn;
+
+
+
+CREATE EXTENSION IF NOT EXISTS pgcrypto;
+
+
+INSERT INTO Promotions (Name, Description, Start_Date, End_Date)
+SELECT
+  'Promotion ' || generate_series,
+  'Description ' || generate_series,
+  DATE '2015-01-01' + (RANDOM() * (CURRENT_DATE - DATE '2015-01-01'))::INTEGER, -- Случайная дата начала акции с 2015 года
+  DATE '2015-01-01' + (RANDOM() * (CURRENT_DATE - DATE '2015-01-01'))::INTEGER + INTERVAL '30 days' + (RANDOM() * INTERVAL '30 days') -- Случайная дата конца акции через 30-60 дней после начала
+FROM generate_series(1, 100000);
+
+DELETE FROM Promotions
+
+
+CREATE INDEX idx_promotions_start_date ON Promotions (Start_Date);
+DROP INDEX idx_promotions_start_date;
+
+
+select * from USERS
+
+select * from Appointments;
+
+select * from Doctors
+
+select * from Diagnoses
+
+select * from Prescribed_Medications
+
+
+
+
+
+
+
+
+
+
+
+
+
+

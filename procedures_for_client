@@ -1,0 +1,414 @@
+CREATE OR REPLACE PROCEDURE make_appointment(
+    user_id INT,
+    doctor_id INT,
+    appointment_date_time TIMESTAMP
+)
+SECURITY DEFINER
+AS $$
+BEGIN
+    INSERT INTO Appointments (User_ID, Doctor_ID, Appointment_Date_Time)
+    VALUES (user_id, doctor_id, appointment_date_time);
+END;
+$$ LANGUAGE plpgsql;
+
+drop procedure make_appointment;
+
+CALL make_appointment(15, 5, '2024-04-05 09:00:00');
+
+
+
+
+CREATE OR REPLACE PROCEDURE cancel_appointment(appointment_id INT) 
+SECURITY DEFINER
+AS $$
+BEGIN
+    DELETE FROM Appointments WHERE ID = appointment_id;
+END;
+$$ LANGUAGE plpgsql;
+
+drop procedure cancel_appointment(int);
+
+CALL cancel_appointment(789);
+
+
+
+
+CREATE OR REPLACE FUNCTION get_user_appointments(p_user_id INT)
+RETURNS SETOF Appointments 
+SECURITY DEFINER
+AS $$
+BEGIN
+  RETURN QUERY SELECT * FROM Appointments WHERE User_ID = p_user_id;
+  RETURN;
+END;
+$$
+LANGUAGE plpgsql;
+
+drop function get_user_appointments;
+
+
+
+CREATE OR REPLACE FUNCTION get_all_doctors()
+RETURNS SETOF Doctors 
+SECURITY DEFINER
+AS $$
+BEGIN
+  RETURN QUERY SELECT * FROM Doctors;
+  RETURN;
+END;
+$$
+LANGUAGE plpgsql;
+
+select * from get_all_doctors();
+
+drop function get_all_doctors;
+
+
+
+
+
+CREATE OR REPLACE FUNCTION get_services_and_procedures() RETURNS TABLE (
+    ID_serv INT,
+    Name_serv VARCHAR(100),
+    Description_serv TEXT,
+    Price_serv DECIMAL(10, 2),
+	Orientation_serv VARCHAR(50)
+) 
+SECURITY DEFINER
+AS $$
+BEGIN
+    RETURN QUERY SELECT ID, Name, Description, Price, Orientation FROM Services_and_Procedures
+	where isDeleted = false;
+END;
+$$ LANGUAGE plpgsql;
+
+drop function get_services_and_procedures;
+
+SELECT * FROM get_services_and_procedures();
+
+
+
+
+
+
+CREATE OR REPLACE PROCEDURE leave_review(
+    user_id INT,
+    review_text TEXT
+) 
+SECURITY DEFINER
+AS $$
+BEGIN
+    INSERT INTO Reviews (Users_ID, Review_Text, Review_Date)
+    VALUES (user_id, review_text, CURRENT_DATE);
+END;
+$$ LANGUAGE plpgsql;
+
+drop procedure leave_review;
+
+CALL leave_review(17, 'Отличный врач, рекомендую!');
+CALL leave_review(18, 'Отличный врач');
+CALL leave_review(20, 'рекомендую!');
+
+
+
+CREATE OR REPLACE FUNCTION get_promotions(offset_val INT, limit_val INT)
+RETURNS TABLE (
+    ID_prom INT,
+    Name_prom VARCHAR(100),
+    Description_prom TEXT,
+    Start_Date_prom DATE,
+    End_Date_prom DATE
+) 
+SECURITY DEFINER
+AS $$
+BEGIN
+    RETURN QUERY
+    SELECT ID, Name, Description, Start_Date, End_Date
+    FROM Promotions
+    ORDER BY Start_Date
+    OFFSET offset_val
+    LIMIT limit_val;
+END;
+$$ LANGUAGE plpgsql;
+
+drop function get_promotions();
+
+SELECT * FROM get_promotions(0,3);
+
+
+
+
+CREATE OR REPLACE FUNCTION get_medical_results(userr_id INT) RETURNS TABLE (
+    ID_res INT,
+    Doctor_ID_res INT,
+    Result_Description_res TEXT,
+    Date_res DATE
+) 
+SECURITY DEFINER
+AS $$
+BEGIN
+    RETURN QUERY SELECT ID, Doctor_ID, Result_Description, Date
+    FROM Medical_Results
+    WHERE User_ID = userr_id;
+END;
+$$ LANGUAGE plpgsql;
+
+drop function get_medical_results;
+
+SELECT * FROM get_medical_results(20);
+
+
+
+
+
+CREATE OR REPLACE FUNCTION get_diagnoses(userr_id INT) RETURNS TABLE (
+    ID_diag INT,
+    Doctor_ID_diag INT,
+    Diagnosis_Description_diag TEXT,
+    Date_diag DATE
+) 
+SECURITY DEFINER
+AS $$
+BEGIN
+    RETURN QUERY 
+    SELECT ID, Doctor_ID, pgp_sym_decrypt(Diagnosis_Description::bytea, 'awsdqwerty') AS Diagnosis_Description, Date
+    FROM Diagnoses
+    WHERE User_ID = userr_id;
+END;
+$$ LANGUAGE plpgsql;
+
+drop function get_diagnoses;
+
+SELECT * FROM get_diagnoses(51);
+
+
+
+
+
+CREATE OR REPLACE FUNCTION get_prescribed_medications(diagnosiss_id INT)
+    RETURNS TABLE (
+        Medication_ID_pres_diag INT,
+        Medication_Name_pres_diag VARCHAR(100),
+        Dosage_pres_diag VARCHAR(100),
+        Duration_pres_diag INT,
+        Medication_Price DECIMAL(10, 2)
+    )
+SECURITY DEFINER
+AS $$
+BEGIN
+    RETURN QUERY
+    SELECT
+        PM.Medication_ID,
+        M.Name,
+        PM.Dosage,
+        PM.Duration,
+        M.Price
+    FROM
+        Prescribed_Medications PM
+    INNER JOIN
+        Medications M ON PM.Medication_ID = M.ID
+    WHERE
+        PM.Diagnosis_ID = diagnosiss_id;
+END;
+$$ LANGUAGE plpgsql;
+
+drop function get_prescribed_medications;
+
+SELECT * FROM get_prescribed_medications(7);
+
+
+
+CREATE OR REPLACE FUNCTION get_prescribed_procedures(diagnosiss_id INT) 
+RETURNS TABLE (
+    Procedure_ID_pres_proc INT,
+    Duration_pres_proc INT,
+    Procedure_Name_pres_proc VARCHAR(100)
+) 
+SECURITY DEFINER
+AS $$
+BEGIN
+    RETURN QUERY 
+    SELECT pp.Procedure_ID, pp.Duration, sp.Name
+    FROM Prescribed_Procedures pp
+    JOIN Services_and_Procedures sp ON pp.Procedure_ID = sp.ID
+    WHERE pp.Diagnosis_ID = diagnosiss_id;
+END;
+$$ LANGUAGE plpgsql;
+
+drop function get_prescribed_procedures;
+
+SELECT * FROM get_prescribed_procedures(7);
+
+
+
+CREATE OR REPLACE FUNCTION get_user_nickname(p_user_id INT)
+    RETURNS VARCHAR
+SECURITY DEFINER
+AS $$
+BEGIN
+    DECLARE
+        v_nickname VARCHAR;
+    BEGIN
+        SELECT username INTO v_nickname
+        FROM Users
+        WHERE id = p_user_id;
+        
+        RETURN v_nickname;
+    END;
+END;
+$$
+LANGUAGE plpgsql;
+
+drop function get_user_nickname(int);
+
+
+
+CREATE OR REPLACE FUNCTION get_recent_reviews_with_nickname()
+    RETURNS TABLE (
+        p_nickname VARCHAR,
+        p_review_text TEXT,
+        p_review_date DATE
+    )
+SECURITY DEFINER
+LANGUAGE plpgsql
+AS $$
+BEGIN
+    RETURN QUERY
+    SELECT
+        get_user_nickname(Users_ID),
+        Review_Text,
+        Review_Date
+    FROM
+        Reviews
+    ORDER BY
+        ID DESC
+    LIMIT 5;
+END;
+$$;
+drop function get_recent_reviews_with_nickname;
+
+SELECT * FROM get_recent_reviews_with_nickname();
+
+
+
+
+
+CREATE FUNCTION get_doctors_for_combobox() RETURNS TABLE (
+    d_ID INT,
+    d_Name VARCHAR(50),
+    d_Last_Name VARCHAR(50)
+) 
+SECURITY DEFINER
+AS $$
+BEGIN
+    RETURN QUERY SELECT ID, First_Name, Last_Name FROM Doctors;
+END;
+$$ LANGUAGE plpgsql;
+
+select get_doctors_for_combobox();
+
+
+SELECT ID, First_Name, Last_Name FROM Doctors; 
+
+CREATE OR REPLACE FUNCTION get_doctors_lskdflsk()
+RETURNS TABLE (IDd INT, fFirst_Name VARCHAR(50), lLast_Name VARCHAR(50))
+SECURITY DEFINER
+AS $$
+BEGIN
+    RETURN QUERY SELECT ID, First_Name, Last_Name FROM Doctors;
+END;
+$$ LANGUAGE plpgsql;
+
+select * from get_doctors_lskdflsk();
+
+
+
+CREATE OR REPLACE FUNCTION GetDoctorName_for_client(DoctorId INT)
+RETURNS VARCHAR(100)
+SECURITY DEFINER
+AS $$
+DECLARE
+    doctor_name VARCHAR(100);
+BEGIN
+    SELECT First_Name || ' ' || Last_Name INTO doctor_name
+    FROM Doctors
+    WHERE ID = DoctorId;
+
+    RETURN doctor_name;
+END;
+$$ LANGUAGE plpgsql;
+
+select GetDoctorName_for_client(10);
+
+
+
+CREATE OR REPLACE FUNCTION filter_services(
+  min_price DECIMAL,
+  max_price DECIMAL,
+  search_query VARCHAR,
+  procedure_orientation VARCHAR
+)
+RETURNS SETOF Services_and_Procedures 
+SECURITY DEFINER
+AS $$
+BEGIN
+    RETURN QUERY
+    SELECT *
+    FROM Services_and_Procedures
+    WHERE
+        (min_price IS NULL OR Price >= min_price) AND
+        (max_price IS NULL OR Price <= max_price) AND
+        (search_query IS NULL OR search_query = '' OR Name ILIKE ('%' || search_query || '%')) 
+		AND (procedure_orientation IS NULL OR procedure_orientation = '' OR Orientation ILIKE ('%' || procedure_orientation || '%'))
+		AND isDeleted = false;
+END;
+$$
+LANGUAGE plpgsql;
+
+drop FUNCTION filter_services;
+
+SELECT * FROM filter_services(10.00, 110.00, 'ссаж', null);
+
+
+
+CREATE OR REPLACE FUNCTION import_json_data()
+  RETURNS VOID 
+SECURITY DEFINER
+AS $$
+DECLARE
+  json_data JSONB;
+BEGIN
+  json_data := PG_READ_FILE('C:\Program Files\PostgreSQL\15\data\reviews.json');
+  
+  INSERT INTO Reviews (Users_ID, Review_Text, Review_Date)
+  SELECT (review->>'user_id')::INT,
+         (review->>'review_text')::TEXT,
+         (review->>'review_date')::DATE
+  FROM jsonb_array_elements(json_data->'data') AS review;
+END;
+$$ LANGUAGE plpgsql;
+
+
+drop FUNCTION import_json_data
+
+SELECT import_json_data();
+
+select * from Reviews;
+delete from Reviews
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
